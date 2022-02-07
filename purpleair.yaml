@@ -1,0 +1,196 @@
+- platform: rest
+  name: "PurpleAir"
+
+  # Inspired by: https://chrisjrn.com/2021/05/27/adding-a-purpleair-monitor-to-home-assistant/
+  # (but modified for a local connection)
+  #
+  # See https://docs.google.com/document/d/15ijz94dXJ-YAZLi9iZ_RaBwrZ4KtYeCy08goGBwnbCU/edit#
+  # for a lot of details on the sensor fields.
+
+  # Substitute in the URL of the sensor you care about. You may need to look in your
+  # router to figure out its IP address.
+  resource: http://192.168.7.202/json
+
+  # Since it is local, query as often as you want
+  scan_interval: 15
+
+  # Set this sensor to be the uptime value. It doesn't really matter, but the REST
+  # sensor doesn't support a unique_id, so I find it harder to work with. So all
+  # of the important stuff is represented as template sensors below.
+  value_template: >
+    {{ value_json["uptime"] }}
+  unit_of_measurement: "s"
+  state_class: total
+  # The value of the sensor can't be longer than 255 characters, but the
+  # attributes can.  Store away all the data for use by the templates below.
+  json_attributes:
+    - current_dewpoint_f
+    - current_humidity
+    - current_temp_f
+    - pm2.5_aqi
+    - pm2.5_aqi_b
+    - pm2_5_atm # PM2.5_CF_ATM_ug/m3, Channel A
+    - pm2_5_atm_b # PM2.5_CF_ATM_ug/m3, Channel B
+    - pm2_5_cf_1 # PM2.5_CF_1_ug/m3, Channel A
+    - pm2_5_cf_1_b # PM2.5_CF_1_ug/m3, Channel B
+    - pm1_0_atm # PM1.0_CF_ATM_ug/m3, Channel A
+    - pm1_0_atm_b # PM1.0_CF_ATM_ug/m3, Channel B
+    - pm1_0_cf_1 # PM1.0_CF_ATM_ug/m3, Channel A
+    - pm1_0_cf_1_b # PM1.0_CF_ATM_ug/m3, Channel B
+    - pm10_0_atm # PM10.0_CF_ATM_ug/m3, Channel A
+    - pm10_0_atm_b # PM10.0_CF_ATM_ug/m3, Channel B
+    - pm10_0_cf_1 # PM10.0_CF_1_ug/m3, Channel A
+    - pm10_0_cf_1_b # PM10.0_CF_1_ug/m3, Channel B
+    - p_0_3_um # 0.3um/dl, Channel A
+    - p_0_3_um_b # 0.3um/dl, Channel B
+    - p_0_5_um # 0.5um/dl, Channel A
+    - p_0_5_um_b # 0.5um/dl, Channel B
+    - p_1_0_um # 1.0um/dl, Channel A
+    - p_1_0_um_b # 1.0um/dl, Channel B
+    - p_2_5_um # 2.5um/dl, Channel A
+    - p_2_5_um_b # 2.5um/dl, Channel B
+    - p_5_0_um # 5.0um/dl, Channel A
+    - p_5_0_um_b # 5.0um/dl, Channel B
+    - p_10_0_um # 10.0um/dl, Channel A
+    - p_10_0_um_b # 10.0um/dl, Channel B
+
+- platform: template
+  sensors:
+    purpleair_calculated_pm25_aqi:
+      unique_id: "purpleair_calculated_pm25_aqi"
+      friendly_name: "PurpleAir PM2.5 AQI (calculated)"
+      device_class: aqi
+      value_template: >
+        {% macro calcAQI(Cp, Ih, Il, BPh, BPl) -%}
+          {{ (((Ih - Il)/(BPh - BPl)) * (Cp - BPl) + Il)|round|float }}
+        {%- endmacro %}
+        {% if not is_number(states('sensor.purpleair_pm25_ugm3')) %}
+          unknown
+        {% else %}
+          {% set pm25 = states('sensor.purpleair_pm25_ugm3') | float %}
+          {% if pm25 > 1000 %}
+            invalid
+          {% elif pm25 > 350.5 %}
+            {{ calcAQI(pm25, 500.0, 401.0, 500.0, 350.5) }}
+          {% elif pm25 > 250.5 %}
+            {{ calcAQI(pm25, 400.0, 301.0, 350.4, 250.5) }}
+          {% elif pm25 > 150.5 %}
+            {{ calcAQI(pm25, 300.0, 201.0, 250.4, 150.5) }}
+          {% elif pm25 > 55.5 %}
+            {{ calcAQI(pm25, 200.0, 151.0, 150.4, 55.5) }}
+          {% elif pm25 > 35.5 %}
+            {{ calcAQI(pm25, 150.0, 101.0, 55.4, 35.5) }}
+          {% elif pm25 > 12.1 %}
+            {{ calcAQI(pm25, 100.0, 51.0, 35.4, 12.1) }}
+          {% elif pm25 >= 0.0 %}
+            {{ calcAQI(pm25, 50.0, 0.0, 12.0, 0.0) }}
+          {% else %}
+            invalid
+          {% endif %}
+        {% endif %}
+      unit_of_measurement: "unit"
+
+    purpleair_calculated_pm25_aqi_epa_smoke:
+      unique_id: "purpleair_calculated_pm25_aqi_epa_smoke"
+      friendly_name: "PurpleAir PM2.5 AQI (calculated, EPA)"
+      icon_template: mdi:smoke
+      device_class: aqi
+      value_template: >
+        {% macro calcAQI(Cp, Ih, Il, BPh, BPl) -%}
+          {{ (((Ih - Il)/(BPh - BPl)) * (Cp - BPl) + Il)|round|float }}
+        {%- endmacro %}
+        {% if not is_number(states('sensor.purpleair_pm25_ugm3_epa_smoke')) %}
+          unknown
+        {% else %}
+          {% set pm25 = states('sensor.purpleair_pm25_ugm3_epa_smoke') | float %}
+          {% if pm25 > 1000 %}
+            invalid
+          {% elif pm25 > 350.5 %}
+            {{ calcAQI(pm25, 500.0, 401.0, 500.0, 350.5) }}
+          {% elif pm25 > 250.5 %}
+            {{ calcAQI(pm25, 400.0, 301.0, 350.4, 250.5) }}
+          {% elif pm25 > 150.5 %}
+            {{ calcAQI(pm25, 300.0, 201.0, 250.4, 150.5) }}
+          {% elif pm25 > 55.5 %}
+            {{ calcAQI(pm25, 200.0, 151.0, 150.4, 55.5) }}
+          {% elif pm25 > 35.5 %}
+            {{ calcAQI(pm25, 150.0, 101.0, 55.4, 35.5) }}
+          {% elif pm25 > 12.1 %}
+            {{ calcAQI(pm25, 100.0, 51.0, 35.4, 12.1) }}
+          {% elif pm25 >= 0.0 %}
+            {{ calcAQI(pm25, 50.0, 0.0, 12.0, 0.0) }}
+          {% else %}
+            invalid
+          {% endif %}
+        {% endif %}
+      unit_of_measurement: "unit"
+
+    purpleair_temp:
+      unique_id: "purpleair_temperature"
+      friendly_name: "PurpleAir Temperature"
+      device_class: temperature
+      # using documented offset from Purple Air
+      value_template: "{{ state_attr('sensor.purpleair','current_temp_f') - 8 }}"
+      unit_of_measurement: "°F"
+
+    purpleair_humidity:
+      unique_id: "purpleair_humidity"
+      friendly_name: "PurpleAir Humidity"
+      device_class: humidity
+      # using documented offset from Purple Air
+      value_template: "{{ state_attr('sensor.purpleair','current_humidity') + 4 }}"
+      unit_of_measurement: "%"
+
+    purpleair_builtin_pm25_aqi:
+      unique_id: "purpleair_builtin_pm25_aqi"
+      friendly_name: "PurpleAir PM2.5 AQI (built-in)"
+      device_class: aqi
+      value_template: "{{ (state_attr('sensor.purpleair','pm2.5_aqi') + state_attr('sensor.purpleair','pm2.5_aqi_b')) / 2 }}"
+      unit_of_measurement: "unit"
+
+    purpleair_pm1_ugm3:
+      unique_id: "purpleair_pm1_ugm3"
+      friendly_name: "PurpleAir PM1.0 µg/m³"
+      device_class: pm1
+      value_template: "{{ (state_attr('sensor.purpleair','pm1_0_atm') + state_attr('sensor.purpleair','pm1_0_atm_b')) / 2 }}"
+      unit_of_measurement: "µg/m³"
+
+    purpleair_pm25_ugm3:
+      # There are some notes about the PurpleAir map using CF=1 (instead of CF=ATM) possibly due
+      # to some old misunderstandings of the data. ATM was supposed to be adjusted for outdoor air
+      # where CF=1 was for indoor. There are some notes about some sensors having the labels reversed
+      # in firmware, I don't know if the firmware has been udpated or which values are actually being
+      # pulled. Anyway, this is the one I've selected to use for the AQI value.
+      unique_id: "purpleair_pm25_ugm3"
+      friendly_name: "PurpleAir PM2.5 µg/m³"
+      device_class: pm25
+      value_template: "{{ (state_attr('sensor.purpleair','pm2_5_atm') + state_attr('sensor.purpleair','pm2_5_atm_b')) / 2 }}"
+      unit_of_measurement: "µg/m³"
+
+    purpleair_pm25_ugm3_epa_smoke:
+      # Attempt at implementing: https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=349513&Lab=CEMM&simplesearch=0&showcriteria=2&sortby=pubDate&timstype=&datebeginpublishedpresented=08/25/2018
+      unique_id: "purpleair_pm25_ugm3_epa_smoke"
+      friendly_name: "PurpleAir PM2.5 µg/m³ (EPA)"
+      icon_template: mdi:smoke
+      device_class: pm25
+      value_template: "{{ 0.52 * ((state_attr('sensor.purpleair','pm2_5_cf_1') + state_attr('sensor.purpleair','pm2_5_cf_1_b')) / 2) - (0.085 * state_attr('sensor.purpleair','current_humidity')) + 5.71 }}"
+      unit_of_measurement: "µg/m³"
+
+    purpleair_pm100_ugm3:
+      unique_id: "purpleair_pm100_ugm3"
+      friendly_name: "PurpleAir PM10.0 µg/m³"
+      device_class: pm10
+      value_template: "{{ (state_attr('sensor.purpleair','pm10_0_atm') + state_attr('sensor.purpleair','pm10_0_atm_b')) / 2 }}"
+      unit_of_measurement: "µg/m³"
+
+# I find that the temperature reading is very noisy and seems to have random downward spikes.
+# This cleans it up and the result matches other temp sensors at my house.
+- platform: statistics
+  unique_id: purpleair_temperature_trailing_max
+  name: "Purple Air 30min Trailing Max"
+  entity_id: sensor.purpleair_temp
+  state_characteristic: value_max
+  max_age:
+    minutes: 45
+  sampling_size: 600
+  precision: 0
