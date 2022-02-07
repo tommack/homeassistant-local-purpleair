@@ -145,7 +145,7 @@
       unique_id: "purpleair_builtin_pm25_aqi"
       friendly_name: "PurpleAir PM2.5 AQI (built-in)"
       device_class: aqi
-      value_template: "{{ (state_attr('sensor.purpleair','pm2.5_aqi') + state_attr('sensor.purpleair','pm2.5_aqi_b')) / 2 | round | int}}"
+      value_template: "{{ ( (state_attr('sensor.purpleair','pm2.5_aqi') + state_attr('sensor.purpleair','pm2.5_aqi_b')) / 2 ) | round | int}}"
       unit_of_measurement: "AQI"
 
     purpleair_pm1_ugm3:
