@@ -168,7 +168,7 @@
       unit_of_measurement: "µg/m³"
 
     purpleair_pm25_ugm3_epa_smoke:
-      # Attempt at implementing: https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=349513&Lab=CEMM&simplesearch=0&showcriteria=2&sortby=pubDate&timstype=&datebeginpublishedpresented=08/25/2018
+      # Attempt at implementing: https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=349513
       unique_id: "purpleair_pm25_ugm3_epa_smoke"
       friendly_name: "PurpleAir PM2.5 µg/m³ (EPA)"
       icon_template: mdi:smoke
