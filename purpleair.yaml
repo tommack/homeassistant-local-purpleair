@@ -4,6 +4,9 @@
   # Inspired by: https://chrisjrn.com/2021/05/27/adding-a-purpleair-monitor-to-home-assistant/
   # (but modified for a local connection)
   #
+  # See https://community.home-assistant.io/t/purpleair-air-quality-sensor/146588 for a huge discussion
+  # on various approaches. Must of this is inspired by that thread.
+  #
   # See https://docs.google.com/document/d/15ijz94dXJ-YAZLi9iZ_RaBwrZ4KtYeCy08goGBwnbCU/edit#
   # for a lot of details on the sensor fields.
 
