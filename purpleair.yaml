@@ -25,6 +25,7 @@
   # attributes can.  Store away all the data for use by the templates below.
   json_attributes:
     - current_dewpoint_f
+    - pressure
     - current_humidity
     - current_temp_f
     - pm2.5_aqi
@@ -140,6 +141,29 @@
       # using documented offset from Purple Air
       value_template: "{{ state_attr('sensor.purpleair','current_humidity') + 4 }}"
       unit_of_measurement: "%"
+
+    purpleair_dewpoin:
+      unique_id: "purpleair_dewpoint"
+      friendly_name: "PurpleAir Dewpoint"
+      device_class: temperature
+      # There is a built-in dewpoint, but it appears to be computed from the unadjusted values, formula from https://en.wikipedia.org/wiki/Dew_point
+      value_template: >
+        {% set rh = states('sensor.purpleair_humidity') | float %}
+        {% set tc = (states('sensor.purpleair_temp') | float - 32) * 5 / 9 %}
+        {% set b = 18.678 %}
+        {% set c = 257.14 %}
+        {% set lam = ((rh/100) | log) + ((b * tc) / (c + tc)) %}
+        {% set dew_c = c * lam / (b - lam) %}
+        {% set dew_f = dew_c * 9 / 5 + 32 %}
+        {{ dew_f | round}}
+      unit_of_measurement: "°F"
+
+    purpleair_pressure:
+      unique_id: "purpleair_pressure"
+      friendly_name: "PurpleAir Pressure"
+      device_class: pressure
+      value_template: "{{ state_attr('sensor.purpleair','pressure') }}"
+      unit_of_measurement: "mbar"
 
     purpleair_builtin_pm25_aqi:
       unique_id: "purpleair_builtin_pm25_aqi"
