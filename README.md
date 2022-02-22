@@ -1,4 +1,10 @@
 # homeassistant-local-purpleair
 YAML file to configure a local PurpleAir sensor.
 
-Copy it into your configuration directory, edit it to include the right IP address, add a line like `sensor purple: !include purpleair.yaml`. 
+This file is designed to be a package. I keep mine in a packages directory that is
+referenced from the main configuration.yaml like this:
+
+```
+homeassistant:
+  packages: !include_dir_named packages
+```
