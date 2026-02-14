@@ -1,98 +1,94 @@
-sensor purple_rest:
-  - platform: rest
-    name: "PurpleAir"
+rest:
+  # Inspired by: https://chrisjrn.com/2021/05/27/adding-a-purpleair-monitor-to-home-assistant/
+  # (but modified for a local connection)
+  #
+  # See https://community.home-assistant.io/t/purpleair-air-quality-sensor/146588 for a huge discussion
+  # on various approaches. Most of this is inspired by that thread.
+  #
+  # See https://docs.google.com/document/d/15ijz94dXJ-YAZLi9iZ_RaBwrZ4KtYeCy08goGBwnbCU/edit#
+  # for a lot of details on the sensor fields.
 
-    # Inspired by: https://chrisjrn.com/2021/05/27/adding-a-purpleair-monitor-to-home-assistant/
-    # (but modified for a local connection)
-    #
-    # See https://community.home-assistant.io/t/purpleair-air-quality-sensor/146588 for a huge discussion
-    # on various approaches. Must of this is inspired by that thread.
-    #
-    # See https://docs.google.com/document/d/15ijz94dXJ-YAZLi9iZ_RaBwrZ4KtYeCy08goGBwnbCU/edit#
-    # for a lot of details on the sensor fields.
-
-    # Substitute in the URL of the sensor you care about. You may need to look in your
-    # router to figure out its IP address.
-    resource: http://192.168.7.202/json
+  # Substitute in the URL of the sensor you care about. You may need to look in your
+  # router to figure out its IP address.
+  - resource: http://192.168.10.132/json
 
     # Since it is local, query as often as you want
     scan_interval: 15
-
-    # Set this sensor to be the uptime value. It doesn't really matter, but the REST
-    # sensor doesn't support a unique_id, so I find it harder to work with. So all
-    # of the important stuff is represented as template sensors below.
-    value_template: >
-      {{ value_json["uptime"] }}
-    unit_of_measurement: "s"
-    state_class: total
-    # The value of the sensor can't be longer than 255 characters, but the
-    # attributes can.  Store away all the data for use by the templates below.
-    json_attributes:
-      - current_dewpoint_f
-      - pressure
-      - current_humidity
-      - current_temp_f
-      - pm2.5_aqi
-      - pm2.5_aqi_b
-      - pm2_5_atm # PM2.5_CF_ATM_ug/m3, Channel A
-      - pm2_5_atm_b # PM2.5_CF_ATM_ug/m3, Channel B
-      - pm2_5_cf_1 # PM2.5_CF_1_ug/m3, Channel A
-      - pm2_5_cf_1_b # PM2.5_CF_1_ug/m3, Channel B
-      - pm1_0_atm # PM1.0_CF_ATM_ug/m3, Channel A
-      - pm1_0_atm_b # PM1.0_CF_ATM_ug/m3, Channel B
-      - pm1_0_cf_1 # PM1.0_CF_ATM_ug/m3, Channel A
-      - pm1_0_cf_1_b # PM1.0_CF_ATM_ug/m3, Channel B
-      - pm10_0_atm # PM10.0_CF_ATM_ug/m3, Channel A
-      - pm10_0_atm_b # PM10.0_CF_ATM_ug/m3, Channel B
-      - pm10_0_cf_1 # PM10.0_CF_1_ug/m3, Channel A
-      - pm10_0_cf_1_b # PM10.0_CF_1_ug/m3, Channel B
-      - p_0_3_um # 0.3um/dl, Channel A
-      - p_0_3_um_b # 0.3um/dl, Channel B
-      - p_0_5_um # 0.5um/dl, Channel A
-      - p_0_5_um_b # 0.5um/dl, Channel B
-      - p_1_0_um # 1.0um/dl, Channel A
-      - p_1_0_um_b # 1.0um/dl, Channel B
-      - p_2_5_um # 2.5um/dl, Channel A
-      - p_2_5_um_b # 2.5um/dl, Channel B
-      - p_5_0_um # 5.0um/dl, Channel A
-      - p_5_0_um_b # 5.0um/dl, Channel B
-      - p_10_0_um # 10.0um/dl, Channel A
-      - p_10_0_um_b # 10.0um/dl, Channel B
+    sensor:
+      name: "PurpleAir"
+      # Set this sensor to be the uptime value. It doesn't really matter, but the REST
+      # sensor doesn't support a unique_id, so I find it harder to work with. So all
+      # of the important stuff is represented as template sensors below.
+      value_template: >
+        {{ value_json["uptime"] }}
+      unit_of_measurement: "s"
+      state_class: total
+      # The value of the sensor can't be longer than 255 characters, but the
+      # attributes can.  Store away all the data for use by the templates below.
+      json_attributes:
+        - current_dewpoint_f
+        - pressure
+        - current_humidity
+        - current_temp_f
+        - pm2.5_aqi
+        - pm2.5_aqi_b
+        - pm2_5_atm # PM2.5_CF_ATM_ug/m3, Channel A
+        - pm2_5_atm_b # PM2.5_CF_ATM_ug/m3, Channel B
+        - pm2_5_cf_1 # PM2.5_CF_1_ug/m3, Channel A
+        - pm2_5_cf_1_b # PM2.5_CF_1_ug/m3, Channel B
+        - pm1_0_atm # PM1.0_CF_ATM_ug/m3, Channel A
+        - pm1_0_atm_b # PM1.0_CF_ATM_ug/m3, Channel B
+        - pm1_0_cf_1 # PM1.0_CF_ATM_ug/m3, Channel A
+        - pm1_0_cf_1_b # PM1.0_CF_ATM_ug/m3, Channel B
+        - pm10_0_atm # PM10.0_CF_ATM_ug/m3, Channel A
+        - pm10_0_atm_b # PM10.0_CF_ATM_ug/m3, Channel B
+        - pm10_0_cf_1 # PM10.0_CF_1_ug/m3, Channel A
+        - pm10_0_cf_1_b # PM10.0_CF_1_ug/m3, Channel B
+        - p_0_3_um # 0.3um/dl, Channel A
+        - p_0_3_um_b # 0.3um/dl, Channel B
+        - p_0_5_um # 0.5um/dl, Channel A
+        - p_0_5_um_b # 0.5um/dl, Channel B
+        - p_1_0_um # 1.0um/dl, Channel A
+        - p_1_0_um_b # 1.0um/dl, Channel B
+        - p_2_5_um # 2.5um/dl, Channel A
+        - p_2_5_um_b # 2.5um/dl, Channel B
+        - p_5_0_um # 5.0um/dl, Channel A
+        - p_5_0_um_b # 5.0um/dl, Channel B
+        - p_10_0_um # 10.0um/dl, Channel A
+        - p_10_0_um_b # 10.0um/dl, Channel B
 
 template:
   - sensor:
       - unique_id: "purpleair_calculated_pm25_aqi"
         name: "PurpleAir PM2.5 AQI (calculated)"
         device_class: aqi
+        # AQI breakpoints updated to May 2024 EPA revision
         state: >
           {% macro calcAQI(Cp, Ih, Il, BPh, BPl) -%}
             {{ (((Ih - Il)/(BPh - BPl)) * (Cp - BPl) + Il)|round|int }}
           {%- endmacro %}
           {% if not is_number(states('sensor.purpleair_pm25_ugm3')) %}
-            unknown
+            {{ none }}
           {% else %}
             {% set pm25 = states('sensor.purpleair_pm25_ugm3') | float %}
-            {% if pm25 > 1000 %}
-              invalid
-            {% elif pm25 > 350.5 %}
-              {{ calcAQI(pm25, 500.0, 401.0, 500.0, 350.5) }}
-            {% elif pm25 > 250.5 %}
-              {{ calcAQI(pm25, 400.0, 301.0, 350.4, 250.5) }}
-            {% elif pm25 > 150.5 %}
-              {{ calcAQI(pm25, 300.0, 201.0, 250.4, 150.5) }}
-            {% elif pm25 > 55.5 %}
-              {{ calcAQI(pm25, 200.0, 151.0, 150.4, 55.5) }}
-            {% elif pm25 > 35.5 %}
+            {% if pm25 > 325.4 %}
+              {{ none }}
+            {% elif pm25 > 225.4 %}
+              {{ calcAQI(pm25, 500.0, 301.0, 325.4, 225.5) }}
+            {% elif pm25 > 125.4 %}
+              {{ calcAQI(pm25, 300.0, 201.0, 225.4, 125.5) }}
+            {% elif pm25 > 55.4 %}
+              {{ calcAQI(pm25, 200.0, 151.0, 125.4, 55.5) }}
+            {% elif pm25 > 35.4 %}
               {{ calcAQI(pm25, 150.0, 101.0, 55.4, 35.5) }}
-            {% elif pm25 > 12.1 %}
-              {{ calcAQI(pm25, 100.0, 51.0, 35.4, 12.1) }}
+            {% elif pm25 > 9.0 %}
+              {{ calcAQI(pm25, 100.0, 51.0, 35.4, 9.1) }}
             {% elif pm25 >= 0.0 %}
-              {{ calcAQI(pm25, 50.0, 0.0, 12.0, 0.0) }}
+              {{ calcAQI(pm25, 50.0, 0.0, 9.0, 0.0) }}
             {% else %}
-              invalid
+              {{ none }}
             {% endif %}
           {% endif %}
-        unit_of_measurement: "AQI"
 
   - sensor:
       - unique_id: "purpleair_calculated_pm25_aqi_epa_smoke"
@@ -104,39 +100,39 @@ template:
             {{ (((Ih - Il)/(BPh - BPl)) * (Cp - BPl) + Il)|round|int}}
           {%- endmacro %}
           {% if not is_number(states('sensor.purpleair_pm25_ugm3_epa_smoke')) %}
-            unknown
+            {{ none }}
           {% else %}
             {% set pm25 = states('sensor.purpleair_pm25_ugm3_epa_smoke') | float %}
-            {% if pm25 > 1000 %}
-              invalid
-            {% elif pm25 > 350.5 %}
-              {{ calcAQI(pm25, 500.0, 401.0, 500.0, 350.5) }}
-            {% elif pm25 > 250.5 %}
-              {{ calcAQI(pm25, 400.0, 301.0, 350.4, 250.5) }}
-            {% elif pm25 > 150.5 %}
-              {{ calcAQI(pm25, 300.0, 201.0, 250.4, 150.5) }}
-            {% elif pm25 > 55.5 %}
-              {{ calcAQI(pm25, 200.0, 151.0, 150.4, 55.5) }}
-            {% elif pm25 > 35.5 %}
+            {% if pm25 > 325.4 %}
+              {{ none }}
+            {% elif pm25 > 225.4 %}
+              {{ calcAQI(pm25, 500.0, 301.0, 325.4, 225.5) }}
+            {% elif pm25 > 125.4 %}
+              {{ calcAQI(pm25, 300.0, 201.0, 225.4, 125.5) }}
+            {% elif pm25 > 55.4 %}
+              {{ calcAQI(pm25, 200.0, 151.0, 125.4, 55.5) }}
+            {% elif pm25 > 35.4 %}
               {{ calcAQI(pm25, 150.0, 101.0, 55.4, 35.5) }}
-            {% elif pm25 > 12.1 %}
-              {{ calcAQI(pm25, 100.0, 51.0, 35.4, 12.1) }}
+            {% elif pm25 > 9.0 %}
+              {{ calcAQI(pm25, 100.0, 51.0, 35.4, 9.1) }}
             {% elif pm25 >= 0.0 %}
-              {{ calcAQI(pm25, 50.0, 0.0, 12.0, 0.0) }}
+              {{ calcAQI(pm25, 50.0, 0.0, 9.0, 0.0) }}
             {% else %}
-              invalid
+              {{ none }}
             {% endif %}
           {% endif %}
-        unit_of_measurement: "AQI"
 
   - trigger:
       - platform: state
         entity_id: sensor.purpleair
+        not_to:
+          - "unavailable"
+          - "unknown"
     sensor:
       - unique_id: "purpleair_temperature"
         name: "PurpleAir Temperature"
         device_class: temperature
-        # Using documented offset (-8°F) from Purple Air.
+        # Using calibrated offset (-5°F) based on comparison with dedicated outdoor sensor.
         # Store the last 60 readings in an attribute.
         # Compute the value by discarding the ten largest and ten smallest values
         # and averaging the remaining.
@@ -144,12 +140,12 @@ template:
         # this processing step seems to clean it up pretty well.
         state: >
           {% set data = state_attr('sensor.purpleair_temp', 'history') | default([], True) %}
-          {% set current = state_attr('sensor.purpleair', 'current_temp_f') - 8 %}
+          {% set current = state_attr('sensor.purpleair', 'current_temp_f') | float - 5 %}
           {% set middle_readings = ((data + [current]) | sort)[10:-10] %}
           {% if middle_readings | length %}
             {{ ((middle_readings | sum) / (middle_readings | length)) | round(1)}}
           {% else %}
-            unknown
+            {{ current }}
           {% endif %}
         unit_of_measurement: "°F"
         attributes:
@@ -157,20 +153,15 @@ template:
           # Cache about 15 minutes worth of readings for a max
           history: >
             {% set data = state_attr('sensor.purpleair_temp', 'history') | default([], True) %}
-            {% set current = state_attr('sensor.purpleair', 'current_temp_f') - 8 %}
+            {% set current = state_attr('sensor.purpleair', 'current_temp_f') | float - 5 %}
             {{ (data[-60:] + [current]) }}
-
-  - sensor:
-      # Includes offset, but no attempt to smooth the data.
-      - unique_id: "purpleair_temperature_raw"
-        name: "PurpleAir Temperature (raw)"
-        device_class: temperature
-        state: "{{ state_attr('sensor.purpleair', 'current_temp_f') - 8 }}"
-        unit_of_measurement: "°F"
 
   - trigger:
       - platform: state
         entity_id: sensor.purpleair
+        not_to:
+          - "unavailable"
+          - "unknown"
     sensor:
       - unique_id: "purpleair_humidity"
         name: "PurpleAir Humidity"
@@ -178,7 +169,7 @@ template:
         # using documented offset from Purple Air
         state: >
           {% set data = state_attr('sensor.purpleair_humidity', 'history') | default([], True) %}
-          {% set current = state_attr('sensor.purpleair', 'current_humidity') + 4 %}
+          {% set current = state_attr('sensor.purpleair', 'current_humidity') | float + 4 %}
           {{ ( (data | sum + current) / (data | length + 1) ) | round(1)}}
         unit_of_measurement: "%"
         attributes:
@@ -186,20 +177,15 @@ template:
           # Cache about 5 minutes worth of readings for an average
           history: >
             {% set data = state_attr('sensor.purpleair_humidity', 'history') | default([], True) %}
-            {% set current = state_attr('sensor.purpleair', 'current_humidity') + 4 %}
+            {% set current = state_attr('sensor.purpleair', 'current_humidity') | float + 4 %}
             {{ (data[-20:] + [current]) }}
-
-  - sensor:
-      # Includes offset, but no attempt to smooth the data.
-      - unique_id: "purpleair_humidity_raw"
-        name: "PurpleAir Humidity (raw)"
-        device_class: humidity
-        state: "{{ state_attr('sensor.purpleair', 'current_humidity') + 4 }}"
-        unit_of_measurement: "%"
 
   - trigger:
       - platform: state
         entity_id: sensor.purpleair
+        not_to:
+          - "unavailable"
+          - "unknown"
     sensor:
       - unique_id: "purpleair_pressure"
         name: "PurpleAir Pressure"
@@ -212,7 +198,7 @@ template:
         # Sea level conversion from https://keisan.casio.com/keisan/image/Convertpressure.pdf
         state: >
           {% set data = state_attr('sensor.purpleair_pressure', 'history') | default([], True) %}
-          {% set current = state_attr('sensor.purpleair','pressure') %}
+          {% set current = state_attr('sensor.purpleair','pressure') | float %}
           {% set tc = (states('sensor.purpleair_temp') | float - 32) * 5 / 9 %}
           {% set hm = 376 %}
           {% set middle_readings = ((data + [current]) | sort)[10:-10] %}
@@ -220,22 +206,14 @@ template:
             {% set ps = ((middle_readings | sum) / (middle_readings | length)) | round(3) %}
             {{ (ps * (1 - (0.0065 * hm) / (tc + 0.0065 * hm + 273.15))**-5.257) | round(2) }}
           {% else %}
-            unknown
+            {{ (current * (1 - (0.0065 * hm) / (tc + 0.0065 * hm + 273.15))**-5.257) | round(2) }}
           {% endif %}
         attributes:
           # Cache about 15 minutes worth of readings for a max
           history: >
             {% set data = state_attr('sensor.purpleair_pressure', 'history') | default([], True) %}
-            {% set current = state_attr('sensor.purpleair', 'pressure') %}
+            {% set current = state_attr('sensor.purpleair', 'pressure') | float %}
             {{ (data[-60:] + [current]) }}
-        unit_of_measurement: "mbar"
-
-  - sensor:
-      # Does not include sea level adjust or any attempt to smooth the data.
-      - unique_id: "purpleair_pressure_raw"
-        name: "PurpleAir Pressure (raw)"
-        device_class: humidity
-        state: "{{ state_attr('sensor.purpleair', 'pressure') + 4 }}"
         unit_of_measurement: "mbar"
 
   - sensor:
@@ -245,7 +223,7 @@ template:
         # There is a built-in dewpoint, but it appears to be computed from the unadjusted values, formula from https://en.wikipedia.org/wiki/Dew_point
         state: >
           {% if not is_number(states('sensor.purpleair_humidity')) or not is_number(states('sensor.purpleair_temp')) %}
-            unknown
+            {{ none }}
           {% else %}
             {% set rh = states('sensor.purpleair_humidity') | float %}
             {% set tc = (states('sensor.purpleair_temp') | float - 32) * 5 / 9 %}
@@ -260,31 +238,12 @@ template:
         attributes:
           raw: "{{ state_attr('sensor.purpleair','current_dewpoint_f') }}"
 
-  - sensor:
-      # Does not include any attempt to smooth the data.
-      - unique_id: "purpleair_dewpoint_raw"
-        name: "PurpleAir Dewpoint (raw)"
-        device_class: temperature
-        state: "{{ state_attr('sensor.purpleair', 'current_dewpoint_f') }}"
-        unit_of_measurement: "°F"
-
-  - sensor:
-      - unique_id: "purpleair_builtin_pm25_aqi"
-        name: "PurpleAir PM2.5 AQI (built-in)"
-        device_class: aqi
-        state: "{{ ( (state_attr('sensor.purpleair','pm2.5_aqi') + state_attr('sensor.purpleair','pm2.5_aqi_b')) / 2 ) | round | int}}"
-        unit_of_measurement: "AQI"
-
-  - sensor:
-      - unique_id: "purpleair_pm1_ugm3"
-        name: "PurpleAir PM1.0 µg/m³"
-        device_class: pm1
-        state: "{{ (state_attr('sensor.purpleair','pm1_0_atm') + state_attr('sensor.purpleair','pm1_0_atm_b')) / 2 }}"
-        unit_of_measurement: "µg/m³"
-
   - trigger:
       - platform: state
         entity_id: sensor.purpleair
+        not_to:
+          - "unavailable"
+          - "unknown"
     sensor:
       # There are some notes about the PurpleAir map using CF=1 (instead of CF=ATM) possibly due
       # to some old misunderstandings of the data. ATM was supposed to be adjusted for outdoor air
@@ -292,40 +251,94 @@ template:
       # in firmware, I don't know if the firmware has been udpated or which values are actually being
       # pulled. Anyway, this is the one I've selected to use for the AQI value.
       # This code attempts to smooth the value by looking at the last ten minutes of readings,
-      # throwing out the 5 highest and 5 lowest, and averaging the remaining.
+      # and averaging the largest half.
       - unique_id: "purpleair_pm25_ugm3"
         name: "PurpleAir PM2.5 µg/m³"
         device_class: pm25
         state: >
           {% set data = state_attr('sensor.purpleair_pm25_ugm3', 'history') | default([], True) %}
-          {% set current = (state_attr('sensor.purpleair','pm2_5_atm') + state_attr('sensor.purpleair','pm2_5_atm_b')) / 2 %}
-          {% set middle_readings = ((data + [current]) | sort)[5:-5] %}
+          {% set current = (state_attr('sensor.purpleair','pm2_5_atm') | float + state_attr('sensor.purpleair','pm2_5_atm_b') | float) / 2 %}
+          {% set middle_readings = ((data + [current]) | sort)[30:] %}
           {% if middle_readings | length %}
             {{ ((middle_readings | sum) / (middle_readings | length)) | round(3)}}
           {% else %}
-            unknown
+            {{ none }}
           {% endif %}
         unit_of_measurement: "µg/m³"
         attributes:
-          raw: "{{ (state_attr('sensor.purpleair','pm2_5_atm') + state_attr('sensor.purpleair','pm2_5_atm_b')) / 2 }}"
-          # Cache about 10 minutes worth of readings for a max
+          raw: "{{ (state_attr('sensor.purpleair','pm2_5_atm') | float + state_attr('sensor.purpleair','pm2_5_atm_b') | float) / 2 }}"
+          # Cache about 15 minutes worth of readings for a max
           history: >
             {% set data = state_attr('sensor.purpleair_pm25_ugm3', 'history') | default([], True) %}
-            {% set current = (state_attr('sensor.purpleair','pm2_5_atm') + state_attr('sensor.purpleair','pm2_5_atm_b')) / 2 %}
+            {% set current = (state_attr('sensor.purpleair','pm2_5_atm') | float + state_attr('sensor.purpleair','pm2_5_atm_b') | float) / 2 %}
             {{ (data[-40:] + [current]) }}
 
-  - sensor:
-      # Attempt at implementing: https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=349513
+  # Trigger-based raw/simple sensors: hold last good value during REST sensor gaps
+  - trigger:
+      - platform: state
+        entity_id: sensor.purpleair
+        not_to:
+          - "unavailable"
+          - "unknown"
+    sensor:
+      - unique_id: "purpleair_temperature_raw"
+        name: "PurpleAir Temperature (raw)"
+        device_class: temperature
+        state: "{{ (state_attr('sensor.purpleair', 'current_temp_f') | float) - 5 }}"
+        unit_of_measurement: "°F"
+
+      - unique_id: "purpleair_humidity_raw"
+        name: "PurpleAir Humidity (raw)"
+        device_class: humidity
+        state: "{{ (state_attr('sensor.purpleair', 'current_humidity') | float) + 4 }}"
+        unit_of_measurement: "%"
+
+      - unique_id: "purpleair_pressure_raw"
+        name: "PurpleAir Pressure (raw)"
+        device_class: pressure
+        state: "{{ state_attr('sensor.purpleair', 'pressure') | float }}"
+        unit_of_measurement: "mbar"
+
+      - unique_id: "purpleair_dewpoint_raw"
+        name: "PurpleAir Dewpoint (raw)"
+        device_class: temperature
+        state: "{{ state_attr('sensor.purpleair', 'current_dewpoint_f') }}"
+        unit_of_measurement: "°F"
+
+      - unique_id: "purpleair_builtin_pm25_aqi"
+        name: "PurpleAir PM2.5 AQI (built-in)"
+        device_class: aqi
+        state: "{{ ( (state_attr('sensor.purpleair','pm2.5_aqi') | float + state_attr('sensor.purpleair','pm2.5_aqi_b') | float) / 2 ) | round | int}}"
+
+      - unique_id: "purpleair_pm1_ugm3"
+        name: "PurpleAir PM1.0 µg/m³"
+        device_class: pm1
+        state: "{{ (state_attr('sensor.purpleair','pm1_0_atm') | float + state_attr('sensor.purpleair','pm1_0_atm_b') | float) / 2 }}"
+        unit_of_measurement: "µg/m³"
+
+      # Piecewise EPA correction: Barkjohn et al. 2022 + 2024 corrigendum
+      # https://pmc.ncbi.nlm.nih.gov/articles/PMC9784900/
       - unique_id: "purpleair_pm25_ugm3_epa_smoke"
         name: "PurpleAir PM2.5 µg/m³ (EPA)"
         icon: mdi:smoke
         device_class: pm25
-        state: "{{ 0.52 * ((state_attr('sensor.purpleair','pm2_5_cf_1') + state_attr('sensor.purpleair','pm2_5_cf_1_b')) / 2) - (0.085 * state_attr('sensor.purpleair','current_humidity')) + 5.71 }}"
+        state: >
+          {% set pa = (state_attr('sensor.purpleair','pm2_5_cf_1') | float + state_attr('sensor.purpleair','pm2_5_cf_1_b') | float) / 2 %}
+          {% set rh = state_attr('sensor.purpleair','current_humidity') | float %}
+          {% set eq1 = 0.524 * pa - 0.0862 * rh + 5.75 %}
+          {% set eq3 = 0.000421 * pa**2 + 0.392 * pa + 3.44 %}
+          {% if pa < 570 %}
+            {{ [0, eq1] | max | round(1) }}
+          {% elif pa < 611 %}
+            {% set w = 0.0244 * pa - 13.9 %}
+            {{ [0, w * eq3 + (1 - w) * eq1] | max | round(1) }}
+          {% else %}
+            {{ [0, eq3] | max | round(1) }}
+          {% endif %}
         unit_of_measurement: "µg/m³"
 
-  - sensor:
       - unique_id: "purpleair_pm100_ugm3"
         name: "PurpleAir PM10.0 µg/m³"
         device_class: pm10
-        state: "{{ (state_attr('sensor.purpleair','pm10_0_atm') + state_attr('sensor.purpleair','pm10_0_atm_b')) / 2 }}"
+        state: "{{ (state_attr('sensor.purpleair','pm10_0_atm') | float + state_attr('sensor.purpleair','pm10_0_atm_b') | float) / 2 }}"
         unit_of_measurement: "µg/m³"
